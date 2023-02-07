@@ -5,9 +5,9 @@ RSpec.describe "Merchant API" do
     create_list(:merchant, 3)
   end
 
-  describe 'the merchants index' do
+  describe 'the merchants index endpoint' do
     it 'sends a list of all merchants' do
-      get '/api/v1/merchants'
+      get api_v1_merchants_path
 
       expect(response).to be_successful
 
@@ -21,6 +21,23 @@ RSpec.describe "Merchant API" do
         expect(merchant[:id]).to be_an(String)
         expect(merchant[:attributes][:name]).to be_a(String)
       end
+    end
+  end
+
+  describe 'the merchant show endpoint' do
+    it 'sends a single merchant' do
+      merchant1 = Merchant.first
+
+      get api_v1_merchant_path(merchant1)
+
+      expect(response).to be_successful 
+      
+      merchant = JSON.parse(response.body, symbolize_names: true)[:data]
+
+      expect(merchant).to have_key(:id)
+      expect(merchant[:attributes]).to have_key(:name)
+      expect(merchant[:id]).to be_an(String)
+      expect(merchant[:attributes][:name]).to be_a(String)
     end
   end
 end
