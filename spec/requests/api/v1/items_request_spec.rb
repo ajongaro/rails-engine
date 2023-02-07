@@ -1,16 +1,16 @@
 require 'rails_helper'
 
-RSpec.describe "Merchant Items" do
+RSpec.describe "Items API" do
   let!(:merchant1) { create(:merchant) }
   let!(:merchant2) { create(:merchant) }
-  
+   
   before :each do
     create_list(:item, 5, merchant:  merchant1 )
   end
 
-  describe 'the merchant items index endpoint' do
-    it 'sends a list of a merchants items' do
-      get "/api/v1/merchants/#{merchant1.id}/items"
+  describe 'the items index endpoint' do
+    it 'sends a list of all items' do
+      get '/api/v1/items/'
 
       expect(response).to be_successful
 
