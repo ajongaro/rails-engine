@@ -1,0 +1,33 @@
+require 'rails_helper'
+
+RSpec.describe "Merchant Items API" do
+  let!(:merchant1) { create(:merchant) }
+  let!(:merchant2) { create(:merchant) }
+  
+  before :each do
+    create_list(:item, 5, merchant:  merchant1 )
+  end
+
+  describe 'the merchant items index endpoint' do
+    it 'sends a list of a merchants items' do
+      get "/api/v1/merchants/#{merchant1.id}/items"
+
+      expect(response).to be_successful
+
+      items = JSON.parse(response.body, symbolize_names: true)[:data]
+
+      expect(items.count).to eq(5)
+
+      items.each do |item|
+        expect(item).to have_key(:id)
+        expect(item[:id]).to be_an(String)
+        expect(item[:attributes]).to have_key(:name)
+        expect(item[:attributes][:name]).to be_a(String)
+        expect(item[:attributes]).to have_key(:description)
+        expect(item[:attributes][:description]).to be_a(String)
+        expect(item[:attributes]).to have_key(:unit_price)
+        expect(item[:attributes][:unit_price]).to be_a(Float)
+      end
+    end
+  end
+end

@@ -5,7 +5,7 @@ RSpec.describe "Merchant API" do
     create_list(:merchant, 3)
   end
 
-  describe 'the merchants index' do
+  describe 'the merchants index endpoint' do
     it 'sends a list of all merchants' do
       get '/api/v1/merchants'
 
