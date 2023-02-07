@@ -7,7 +7,7 @@ RSpec.describe "Merchant API" do
 
   describe 'the merchants index endpoint' do
     it 'sends a list of all merchants' do
-      get '/api/v1/merchants'
+      get api_v1_merchants_path
 
       expect(response).to be_successful
 
@@ -27,7 +27,8 @@ RSpec.describe "Merchant API" do
   describe 'the merchant show endpoint' do
     it 'sends a single merchant' do
       merchant1 = Merchant.first
-      get "/api/v1/merchants/#{merchant1.id}"
+
+      get api_v1_merchant_path(merchant1)
 
       expect(response).to be_successful 
       

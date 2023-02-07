@@ -10,7 +10,7 @@ RSpec.describe "Merchant Items" do
 
   describe 'the merchant items index endpoint' do
     it 'sends a list of a merchants items' do
-      get "/api/v1/merchants/#{merchant1.id}/items"
+      get api_v1_merchant_items_path(merchant1)
 
       expect(response).to be_successful
 
