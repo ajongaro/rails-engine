@@ -74,6 +74,17 @@ RSpec.describe "Items API" do
       expect(new_item[:attributes]).to have_key(:merchant_id)
       expect(new_item[:attributes][:merchant_id]).to be_a(Integer)
     end
+
+    it 'has sad path user fail to create a new item' do
+      post api_v1_items_path, params: { name: "A Novel Item", unit_price: 100.00, merchant_id: merchant2.id }
+
+      expect(response).to_not be_successful 
+
+      result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(result).to have_key(:error)
+      expect(result[:error]).to eq("Validation failed: Description can't be blank")
+    end
   end
 
   describe 'the item deletion endpoint' do
