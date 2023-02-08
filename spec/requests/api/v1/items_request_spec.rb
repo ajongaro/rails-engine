@@ -5,6 +5,7 @@ RSpec.describe "Items API" do
   let!(:merchant2) { create(:merchant) }
   let!(:item1) { create(:item, merchant: merchant1) }
   let!(:item2) { create(:item, merchant: merchant1) }
+  let!(:item3) { create(:item, merchant: merchant1) }
 
   describe 'the items index endpoint' do
     it 'sends a list of all items' do
@@ -16,7 +17,7 @@ RSpec.describe "Items API" do
 
       items = JSON.parse(response.body, symbolize_names: true)[:data]
 
-      expect(items.count).to eq(7)
+      expect(items.count).to eq(8)
 
       items.each do |item|
         expect(item).to have_key(:id)
@@ -75,12 +76,38 @@ RSpec.describe "Items API" do
   end
 
   describe 'the item deletion endpoint' do
+    let!(:customer1) { create(:customer) }
+    let!(:invoice1) { Invoice.create!(status: "shipped", customer: customer1, merchant: merchant1) }
+    let!(:invoice2) { Invoice.create!(status: "shipped", customer: customer1, merchant: merchant1) }
+    let!(:invoice3) { Invoice.create!(status: "shipped", customer: customer1, merchant: merchant1) }
+
+    # two items on invoice1
+    let!(:invoice_item1) { InvoiceItem.create!(item: item1, quantity: 10, unit_price: 100.02, invoice: invoice1) }
+    let!(:invoice_item2) { InvoiceItem.create!(item: item2, quantity: 10, unit_price: 109.04, invoice: invoice1) }
+
+    # one item on invoice2 
+    let!(:invoice_item3) { InvoiceItem.create!(item: item1, quantity: 10, unit_price: 115.07, invoice: invoice2) }
+
     it 'allows a user to delete an item' do
+      expect(Item.find_by(id: item1.id)).to eq(item1)
+
       delete api_v1_item_path(item1)
 
       expect(response).to be_successful
 
       expect(Item.find_by(id: item1.id)).to eq(nil)
+    end
+
+    it 'deletes all associated invoices where no other items are present' do
+      expect(Invoice.find_by(id: invoice1.id)).to eq(invoice1)
+      expect(Invoice.find_by(id: invoice2.id)).to eq(invoice2)
+      expect(Invoice.count).to eq(3)
+
+      delete api_v1_item_path(item1)
+
+      expect(Invoice.count).to eq(2)
+      expect(Invoice.find(invoice1.id)).to eq(invoice1)
+      expect { Invoice.find(invoice2.id) }.to raise_error(ActiveRecord::RecordNotFound)
     end
   end
 
