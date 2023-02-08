@@ -83,4 +83,25 @@ RSpec.describe "Items API" do
       expect(Item.find_by(id: item1.id)).to eq(nil)
     end
   end
+
+  describe 'the item update endpoint' do
+    it 'allows a user to update an item' do
+      put api_v1_item_path(item1), params: { name: "New Item", description: "New Description", unit_price: 100.00, merchant_id: merchant2.id }
+
+      expect(response).to be_successful
+
+      updated_item = JSON.parse(response.body, symbolize_names: true)[:data]
+
+      expect(updated_item).to have_key(:id)
+      expect(updated_item[:id]).to be_an(String)
+      expect(updated_item[:attributes]).to have_key(:name)
+      expect(updated_item[:attributes][:name]).to be_a(String)
+      expect(updated_item[:attributes]).to have_key(:description)
+      expect(updated_item[:attributes][:description]).to be_a(String)
+      expect(updated_item[:attributes]).to have_key(:unit_price)
+      expect(updated_item[:attributes][:unit_price]).to be_a(Float)
+      expect(updated_item[:attributes]).to have_key(:merchant_id)
+      expect(updated_item[:attributes][:merchant_id]).to be_a(Integer)
+    end
+  end
 end
