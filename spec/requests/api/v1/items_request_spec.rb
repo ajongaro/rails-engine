@@ -6,6 +6,7 @@ RSpec.describe "Items API" do
   let!(:item1) { create(:item, merchant: merchant1) }
   let!(:item2) { create(:item, merchant: merchant1) }
   let!(:item3) { create(:item, merchant: merchant1) }
+  let!(:item4) { Item.create!(name: "Original Name", description: "Original Desc", unit_price: 100.02, merchant: merchant1) }
 
   describe 'the items index endpoint' do
     it 'sends a list of all items' do
@@ -17,7 +18,7 @@ RSpec.describe "Items API" do
 
       items = JSON.parse(response.body, symbolize_names: true)[:data]
 
-      expect(items.count).to eq(8)
+      expect(items.count).to eq(9)
 
       items.each do |item|
         expect(item).to have_key(:id)
@@ -57,7 +58,7 @@ RSpec.describe "Items API" do
 
   describe 'the item creation endpoint' do
     it 'allows a user to create a new item' do
-      post api_v1_items_path, params: { name: "New Item", description: "New Description", unit_price: 100.00, merchant_id: merchant2.id }
+      post api_v1_items_path, params: { name: "A Novel Item", description: "A Decent Description", unit_price: 100.00, merchant_id: merchant2.id }
 
       expect(response).to be_successful
       new_item = JSON.parse(response.body, symbolize_names: true)[:data]
@@ -113,8 +114,37 @@ RSpec.describe "Items API" do
 
   describe 'the item update endpoint' do
     it 'allows a user to update an item' do
-      put api_v1_item_path(item1), params: { name: "New Item", description: "New Description", unit_price: 100.00, merchant_id: merchant2.id }
+      item = Item.find(item4.id)
+      expect(item.name).to eq("Original Name")     
+      expect(item.description).to eq("Original Desc")     
+      expect(item.unit_price).to eq(100.02)     
+      expect(item.merchant_id).to eq(merchant1.id)     
 
+      put api_v1_item_path(item4), params: { name: "New Name", description: "New Desc", unit_price: 99.09, merchant_id: merchant1.id }
+
+      expect(response).to be_successful
+
+      updated_item = JSON.parse(response.body, symbolize_names: true)[:data]
+
+      expect(updated_item).to have_key(:id)
+      expect(updated_item[:id]).to be_an(String)
+      expect(updated_item[:attributes]).to have_key(:name)
+      expect(updated_item[:attributes][:name]).to be_a(String)
+      expect(updated_item[:attributes]).to have_key(:description)
+      expect(updated_item[:attributes][:description]).to be_a(String)
+      expect(updated_item[:attributes]).to have_key(:unit_price)
+      expect(updated_item[:attributes][:unit_price]).to be_a(Float)
+      expect(updated_item[:attributes]).to have_key(:merchant_id)
+      expect(updated_item[:attributes][:merchant_id]).to be_a(Integer)
+
+      item_result = Item.find(item4.id)
+      expect(item_result.name).to eq("New Name")     
+      expect(item_result.description).to eq("New Desc")     
+      expect(item_result.unit_price).to eq(99.09)     
+      expect(item_result.merchant_id).to eq(merchant1.id)     
+    end
+
+    xit 'can be updated with missing parameters' do
       expect(response).to be_successful
 
       updated_item = JSON.parse(response.body, symbolize_names: true)[:data]
