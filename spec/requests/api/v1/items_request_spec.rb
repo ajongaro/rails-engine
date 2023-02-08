@@ -144,7 +144,15 @@ RSpec.describe "Items API" do
       expect(item_result.merchant_id).to eq(merchant1.id)     
     end
 
-    xit 'can be updated with missing parameters' do
+    it 'can be updated with missing parameters' do
+      item = Item.find(item4.id)
+      expect(item.name).to eq("Original Name")     
+      expect(item.description).to eq("Original Desc")     
+      expect(item.unit_price).to eq(100.02)     
+      expect(item.merchant_id).to eq(merchant1.id)     
+
+      put api_v1_item_path(item4), params: { name: "New Name", description: "New Desc" }
+
       expect(response).to be_successful
 
       updated_item = JSON.parse(response.body, symbolize_names: true)[:data]
@@ -159,6 +167,12 @@ RSpec.describe "Items API" do
       expect(updated_item[:attributes][:unit_price]).to be_a(Float)
       expect(updated_item[:attributes]).to have_key(:merchant_id)
       expect(updated_item[:attributes][:merchant_id]).to be_a(Integer)
+
+      item_result = Item.find(item4.id)
+      expect(item_result.name).to eq("New Name") # new   
+      expect(item_result.description).to eq("New Desc") # new   
+      expect(item_result.unit_price).to eq(100.02) # old 
+      expect(item_result.merchant_id).to eq(merchant1.id) # old
     end
   end
 end
