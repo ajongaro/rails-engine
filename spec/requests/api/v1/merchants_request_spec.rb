@@ -40,4 +40,27 @@ RSpec.describe "Merchant API" do
       expect(merchant[:attributes][:name]).to be_a(String)
     end
   end
+
+  describe 'the merchant search endpoint' do
+    let!(:merchant1) { create(:merchant, name: "Anthony's Wares") }
+    let!(:merchant2) { create(:merchant, name: "Fancy Pants") }
+    let!(:merchant3) { create(:merchant, name: "WoW") }
+
+    it 'returns a single merchant by name fragment' do
+      get api_v1_merchants_find_path, params: { name: "ants" }
+      
+      expect(response).to be_successful
+
+      result = JSON.parse(response.body, symbolize_names: true)
+      expect(result[:data][:attributes][:name]).to eq("Fancy Pants")
+    end
+    
+    it 'returns something when sad path' do
+      get api_v1_merchants_find_path, params: { name: "astragalus" }
+      
+      expect(response).to_not be_successful
+      result = JSON.parse(response.body, symbolize_names: true)
+      expect(result[:data][:attributes]).to eq({})
+    end
+  end
 end

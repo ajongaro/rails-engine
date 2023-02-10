@@ -3,10 +3,15 @@ require 'rails_helper'
 RSpec.describe "Items API" do
   let!(:merchant1) { create(:merchant) }
   let!(:merchant2) { create(:merchant) }
-  let!(:item1) { create(:item, merchant: merchant1) }
-  let!(:item2) { create(:item, merchant: merchant1) }
-  let!(:item3) { create(:item, merchant: merchant1) }
-  let!(:item4) { Item.create!(name: "Original Name", description: "Original Desc", unit_price: 100.02, merchant: merchant1) }
+  # let!(:item1) { create(:item, merchant: merchant1) }
+  # let!(:item2) { create(:item, merchant: merchant1) }
+  # let!(:item3) { create(:item, merchant: merchant1) }
+  let!(:item1) { Item.create!(name: "Dumb thing", description: "a bird in a tree", unit_price: 100.02, merchant: merchant1) }
+  let!(:item2) { Item.create!(name: "orig Name", description: "another bird", unit_price: 100.02, merchant: merchant1) }
+  let!(:item3) { Item.create!(name: "not found", description: "a racoon", unit_price: 100.02, merchant: merchant1) }
+  let!(:item4) { Item.create!(name: "Original Name", description: "Dangit", unit_price: 100.02, merchant: merchant1) }
+  let!(:item5) { Item.create!(name: "Plate set", description: "Plaster of Paris", unit_price: 100.02, merchant: merchant1) }
+  let!(:item6) { Item.create!(name: "Okay then", description: "Silly thing", unit_price: 100.02, merchant: merchant1) }
 
   describe 'the items index endpoint' do
     it 'sends a list of all items' do
@@ -18,7 +23,7 @@ RSpec.describe "Items API" do
 
       items = JSON.parse(response.body, symbolize_names: true)[:data]
 
-      expect(items.count).to eq(9)
+      expect(items.count).to eq(11)
 
       items.each do |item|
         expect(item).to have_key(:id)
@@ -79,6 +84,7 @@ RSpec.describe "Items API" do
       post api_v1_items_path, params: { name: "A Novel Item", unit_price: 100.00, merchant_id: merchant2.id }
 
       expect(response).to_not be_successful 
+      expect(response.status).to eq(404)
 
       result = JSON.parse(response.body, symbolize_names: true)
 
@@ -127,7 +133,7 @@ RSpec.describe "Items API" do
     it 'allows a user to update an item' do
       item = Item.find(item4.id)
       expect(item.name).to eq("Original Name")     
-      expect(item.description).to eq("Original Desc")     
+      expect(item.description).to eq("Dangit")     
       expect(item.unit_price).to eq(100.02)     
       expect(item.merchant_id).to eq(merchant1.id)     
 
@@ -158,7 +164,7 @@ RSpec.describe "Items API" do
     it 'can be updated with missing parameters' do
       item = Item.find(item4.id)
       expect(item.name).to eq("Original Name")     
-      expect(item.description).to eq("Original Desc")     
+      expect(item.description).to eq("Dangit")     
       expect(item.unit_price).to eq(100.02)     
       expect(item.merchant_id).to eq(merchant1.id)     
 
@@ -184,6 +190,29 @@ RSpec.describe "Items API" do
       expect(item_result.description).to eq("New Desc") # new   
       expect(item_result.unit_price).to eq(100.02) # old 
       expect(item_result.merchant_id).to eq(merchant1.id) # old
+    end
+  end
+
+  describe 'the items search endpoint' do
+    it 'returns all items matching name fragment' do
+      get api_v1_items_find_all_path, params: { name: "or" }
+      
+      expect(response).to be_successful
+
+      result = JSON.parse(response.body, symbolize_names: true)[:data]
+
+      expect(result.first[:attributes][:name]).to eq("orig Name")
+      expect(result.count).to eq(2)
+    end
+    
+    it 'returns something when sad path' do
+      get api_v1_items_find_all_path, params: { name: "astragalus" }
+
+      expect(response).to be_successful
+
+      result = JSON.parse(response.body, symbolize_names: true)
+
+      expect(result[:data]).to eq([])
     end
   end
 end

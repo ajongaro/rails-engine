@@ -9,5 +9,21 @@ class Item < ApplicationRecord
       invoice.destroy if invoice.items.count == 1
     end
   end
+
+  def self.find_all_by_name_fragment(name_fragment)
+    where("name ILIKE ?", "%#{name_fragment}%").order(Arel.sql("LOWER(name)"))
+  end
+
+  def self.find_all_items_by_min(price)
+    where("unit_price >= ?", price)
+  end
+
+  def self.find_all_items_by_max(price)
+    where("unit_price <= ?", price)
+  end
+
+  def self.find_all_items_in_range(min, max)
+    where("unit_price >= ? AND unit_price <= ?", min, max)
+  end
 end
 
