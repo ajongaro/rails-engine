@@ -7,6 +7,16 @@ class ErrorSerializer
     @code = code
   end
 
+  def self.merchant_json 
+    {
+      "data": {
+          "id": nil,
+          "type": "merchant",
+          "attributes": {}
+      }
+    }
+  end
+
   def self.le_json 
     {
       "data": {
@@ -17,12 +27,13 @@ class ErrorSerializer
     }
   end
 
-  def compiled_json
-    { 
+  def self.item_json 
+    {
       "data": {
-        "errors": error_message,
-        "status": status,
-        "code": code }
+          "errors": "Item not found",
+          "status": 400,
+          "code": 400 
+      }
     }
   end
 end

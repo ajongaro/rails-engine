@@ -12,7 +12,7 @@ class Api::V1::MerchantsController < ApplicationController
     if merchant
       render json: MerchantSerializer.new(merchant)
     else
-      render json: ErrorSerializer.le_json, status: 404
+      render json: ErrorSerializer.merchant_json, status: 404
     end
   end
 

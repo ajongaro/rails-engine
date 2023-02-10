@@ -25,18 +25,37 @@ class Api::V1::ItemsController < ApplicationController
   end
 
   def find_all
-    items = Item.find_all_by_name_fragment(item_params[:name])
-    if items
-      render json: ItemSerializer.new(items)
+    if item_params[:name] && (item_params[:min_price] || item_params[:max_price])
+      render json: ErrorSerializer.le_json, status: 400
+    elsif item_params[:name]
+      items = Item.find_all_by_name_fragment(item_params[:name])
+      if items
+        render json: ItemSerializer.new(items)
+      else
+        render json: ErrorSerializer.le_json, status: 400
+      end
+    elsif item_params[:min_price] && !item_params[:max_price]
+      items = Item.find_all_items_by_min(item_params[:min_price])
+      if items && item_params[:min_price].to_i >= 0
+        render json: ItemSerializer.new(items)
+      else
+        render json: { errors: "Bad query " }, status: 400
+      end
+    elsif item_params[:max_price] && !item_params[:min_price]
+      items = Item.find_all_items_by_min(item_params[:min_price])
+      if items && item_params[:max_price].to_i >= 0
+        render json: ItemSerializer.new(items)
+      else
+        render json: { errors: "Bad query" }, status: 400
+      end
     else
-      render json: ErrorSerializer.le_json, status: 404
+      render json: ErrorSerializer.le_json, status: 400
     end
-
   end
   private
 
   def item_params
     # params.require(:merchant_id) might help return an error if not accurate
-    params.permit(:id, :name, :description, :unit_price, :merchant_id)
+    params.permit(:id, :name, :description, :unit_price, :merchant_id, :min_price, :max_price)
   end
 end
