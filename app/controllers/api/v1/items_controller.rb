@@ -27,7 +27,7 @@ class Api::V1::ItemsController < ApplicationController
   private
 
   def item_params
-    # params.require(:merchant_id) might return an error if not accurate
+    # params.require(:merchant_id) might help return an error if not accurate
     params.permit(:id, :name, :description, :unit_price, :merchant_id)
   end
 end

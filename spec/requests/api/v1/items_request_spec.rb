@@ -79,6 +79,7 @@ RSpec.describe "Items API" do
       post api_v1_items_path, params: { name: "A Novel Item", unit_price: 100.00, merchant_id: merchant2.id }
 
       expect(response).to_not be_successful 
+      expect(response.status).to eq(404)
 
       result = JSON.parse(response.body, symbolize_names: true)
 
