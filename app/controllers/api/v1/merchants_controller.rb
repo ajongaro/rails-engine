@@ -8,7 +8,12 @@ class Api::V1::MerchantsController < ApplicationController
   end
 
   def find
-    render json: MerchantSerializer.new(Merchant.find_all_by_name_fragment(merchant_params[:name]).first)
+    merchant = Merchant.find_all_by_name_fragment(merchant_params[:name]).first
+    if merchant
+      render json: MerchantSerializer.new(merchant)
+    else
+      render json: ErrorSerializer.le_json, status: 404
+    end
   end
 
   private

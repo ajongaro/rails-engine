@@ -54,5 +54,13 @@ RSpec.describe "Merchant API" do
       result = JSON.parse(response.body, symbolize_names: true)
       expect(result[:data][:attributes][:name]).to eq("Fancy Pants")
     end
+    
+    it 'returns something when sad path' do
+      get api_v1_merchants_find_path, params: { name: "astragalus" }
+      
+      expect(response).to_not be_successful
+      result = JSON.parse(response.body, symbolize_names: true)
+      expect(result[:data][:attributes]).to eq({})
+    end
   end
 end

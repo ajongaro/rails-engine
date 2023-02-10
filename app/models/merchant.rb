@@ -6,3 +6,4 @@ class Merchant < ApplicationRecord
     where("name ILIKE ?", "%#{name_fragment}%").order(Arel.sql("LOWER(name)"))
   end
 end
+
