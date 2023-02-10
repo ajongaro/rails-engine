@@ -24,7 +24,7 @@ RSpec.describe "Item's Merchant API" do
       expect(merchant[:attributes][:name]).to be_a(String)
     end
 
-    it 'returns sad path error when not found' do
+    it 'items merchant show returns sad path error when not found' do
       item = Item.first
 
       get api_v1_item_merchant_index_path(14)

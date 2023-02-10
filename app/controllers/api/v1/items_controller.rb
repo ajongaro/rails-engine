@@ -24,6 +24,15 @@ class Api::V1::ItemsController < ApplicationController
     render json: ItemSerializer.new(item)
   end
 
+  def find_all
+    items = Item.find_all_by_name_fragment(item_params[:name])
+    if items
+      render json: ItemSerializer.new(items)
+    else
+      render json: ErrorSerializer.le_json, status: 404
+    end
+
+  end
   private
 
   def item_params

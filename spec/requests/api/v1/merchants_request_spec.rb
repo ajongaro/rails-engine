@@ -46,7 +46,7 @@ RSpec.describe "Merchant API" do
     let!(:merchant2) { create(:merchant, name: "Fancy Pants") }
     let!(:merchant3) { create(:merchant, name: "WoW") }
 
-    it 'returns a single merchant by name frament' do
+    it 'returns a single merchant by name fragment' do
       get api_v1_merchants_find_path, params: { name: "ants" }
       
       expect(response).to be_successful
